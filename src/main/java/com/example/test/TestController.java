@@ -114,7 +114,8 @@ public class TestController {
         try {
             ftem.createIndexer().startAndWait();
             ftem.flushToIndexes();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             logger.error("Interrupted while reindexing.", e);
         }
 
