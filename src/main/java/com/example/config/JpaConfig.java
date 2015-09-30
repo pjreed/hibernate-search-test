@@ -1,5 +1,7 @@
 package com.example.config;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -18,10 +20,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
 
 import com.example.Application;
+import org.springframework.util.PropertyPlaceholderHelper;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackageClasses = Application.class)
+@EnableJpaRepositories(basePackageClasses = Application.class,
+        transactionManagerRef = "annotationDrivenTransactionManager")
 class JpaConfig implements TransactionManagementConfigurer {
 
     @Value("${dataSource.driverClassName}")
@@ -32,8 +36,6 @@ class JpaConfig implements TransactionManagementConfigurer {
     private String username;
     @Value("${dataSource.password}")
     private String password;
-    @Value("${hibernate.dialect}")
-    private String dialect;
     @Value("${hibernate.hbm2ddl.auto}")
     private String hbm2ddlAuto;
 
@@ -49,18 +51,21 @@ class JpaConfig implements TransactionManagementConfigurer {
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.addDataSourceProperty("useServerPrepStmts", "true");
 
+        System.setProperty("hibernate.search.default.directory_provider", "filesystem");
+        System.setProperty("hibernate.search.default.worker.execution", "sync");
+        System.setProperty("hibernate.search.default.indexBase", "./indexes");
+
         return new HikariDataSource(config);
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean configureEntityManagerFactory() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setDataSource(configureDataSource());
         entityManagerFactoryBean.setPackagesToScan("com.example");
         entityManagerFactoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 
         Properties jpaProperties = new Properties();
-        jpaProperties.put(org.hibernate.cfg.Environment.DIALECT, dialect);
         jpaProperties.put(org.hibernate.cfg.Environment.HBM2DDL_AUTO, hbm2ddlAuto);
         entityManagerFactoryBean.setJpaProperties(jpaProperties);
 
