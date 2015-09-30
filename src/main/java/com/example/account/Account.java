@@ -7,8 +7,8 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("serial")
 @Entity
@@ -37,7 +37,7 @@ public class Account implements java.io.Serializable {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     @IndexedEmbedded(depth=1, prefix="phone_number_")
-    private Set<PhoneNumber> phoneNumbers = new HashSet<>();
+    private List<PhoneNumber> phoneNumbers = new ArrayList<>();
 
     protected Account() {
 
@@ -77,11 +77,11 @@ public class Account implements java.io.Serializable {
 		this.role = role;
 	}
 
-    public Set<PhoneNumber> getPhoneNumbers() {
+    public List<PhoneNumber> getPhoneNumbers() {
         return phoneNumbers;
     }
 
-    private void setPhoneNumbers(Set<PhoneNumber> phoneNumbers) {
+    private void setPhoneNumbers(List<PhoneNumber> phoneNumbers) {
         this.phoneNumbers = phoneNumbers;
     }
 }
